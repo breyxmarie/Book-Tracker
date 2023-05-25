@@ -475,7 +475,7 @@ public class UserHome extends JFrame {
 				}
 
 			});
-
+			JPanel labelContainerssss = new JPanel(new FlowLayout(FlowLayout.CENTER));
 			JPanel labelContainerss = new JPanel(new FlowLayout(FlowLayout.CENTER));
 			labelContainerss.add(button);
 			panel.add(labelContainerss, BorderLayout.SOUTH);
