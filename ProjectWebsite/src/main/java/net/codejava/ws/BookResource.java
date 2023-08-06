@@ -2,6 +2,7 @@ package net.codejava.ws;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.SQLException;
 import java.util.Map;
 
 import javax.ws.rs.Consumes;
@@ -242,7 +243,12 @@ public class BookResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response add(Book product) throws URISyntaxException {
 		// int newProductId = cons.addRecord(product);;
-		cons.addRecord(product);
+		try {
+			cons.addRecord(product);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		Book bid = cons.getRecordsWithTitle(product.getTitle());
 		URI uri = new URI("/books/" + bid.getId());
 		System.out.println(uri);

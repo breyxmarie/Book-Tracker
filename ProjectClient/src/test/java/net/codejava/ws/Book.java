@@ -1,5 +1,7 @@
 package net.codejava.ws;
 
+import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -19,6 +21,7 @@ public class Book {
 	private String comment;
 	private String StartDate;
 	private String EndDate;
+	private Date SDate;
 
 	public Book(String Title, String Author, String PubYear, String Genre, String Plot, String Status) {
 
@@ -28,6 +31,17 @@ public class Book {
 		this.Genre = Genre;
 		this.Plot = Plot;
 		this.Status = Status;
+	}
+
+	public Book(String Title, String Author, String PubYear, String Genre, String Plot, String Status, byte[] Cover) {
+
+		this.Title = Title;
+		this.Author = Author;
+		this.PubYear = PubYear;
+		this.Genre = Genre;
+		this.Plot = Plot;
+		this.Status = Status;
+		this.Cover = Cover;
 	}
 
 	public Book(int id, String Title, String Author, String PubYear, String Genre, String Plot, String Status) {

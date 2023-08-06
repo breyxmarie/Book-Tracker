@@ -10,7 +10,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -40,6 +46,7 @@ public class GuiAddBook extends JFrame {
 	private JTextField textField_1;
 	private JTextField textField_2;
 	private JTextArea textField_3;
+	JTextField directory;
 
 	FileDialog fd = new FileDialog(this, "Open", FileDialog.LOAD);
 	/**
@@ -69,21 +76,85 @@ public class GuiAddBook extends JFrame {
 		});
 	}
 
+	private static Image loadImage(String path) {
+		Image image = null;
+		try {
+			image = ImageIO.read(new File(path));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+//		
+//		try {
+//			image = ImageIO.read(new File(path));
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+		return image;
+	}
+
 	JLabel Label1 = new JLabel();
-	Image Image1;
+	String paths = "/bookTracker/default book.png";
+	Toolkit toolkits = Toolkit.getDefaultToolkit();
+	Image image1 = toolkits.getImage("/bookTracker/default book.png");;
+
+	// ImageIcon image = new ImageIcon(getClass().getResource("/bookTracker/default
+	// book.png"));
 	// imageLoad Canvas1;
 
-	public void imageload() {
+	Image image = loadImage("/bookTracker/default book.png");
+
+	public void imageload() throws FileNotFoundException {
 		fd.show();
 		if (fd.getFile() == null) {
 			Label1.setText("You have not select");
 		} else {
 			String d = (fd.getDirectory() + fd.getFile());
+			paths = d;
+			// image = new ImageIcon(d);
 			Toolkit toolkit = Toolkit.getDefaultToolkit();
-			Image1 = toolkit.getImage(d);
+			image1 = toolkit.getImage(d);
+			directory.setText(d);
+			image = loadImage(d);
 			// Canvas1.setImage(Image1);
 			// Canvas1.repaint();
+
 		}
+	}
+
+	private static byte[] convertImageToByteArray(Image image) {
+		BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null),
+				BufferedImage.TYPE_INT_ARGB);
+		bufferedImage.getGraphics().drawImage(image, 0, 0, null);
+
+		try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+			ImageIO.write(bufferedImage, "png", byteArrayOutputStream);
+			return byteArrayOutputStream.toByteArray();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	private static byte[] convertImageIconToByteArray(ImageIcon imageIcon) {
+		BufferedImage bufferedImage = new BufferedImage(imageIcon.getIconWidth(), imageIcon.getIconHeight(),
+				BufferedImage.TYPE_INT_ARGB);
+
+		// Draw the imageIcon onto the BufferedImage
+		imageIcon.paintIcon(null, bufferedImage.getGraphics(), 0, 0);
+
+		try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+			// Write the BufferedImage to the ByteArrayOutputStream
+			ImageIO.write(bufferedImage, "png", byteArrayOutputStream);
+
+			// Retrieve the byte array from the ByteArrayOutputStream
+			return byteArrayOutputStream.toByteArray();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 
 	/**
@@ -105,12 +176,12 @@ public class GuiAddBook extends JFrame {
 		contentPane.add(panel);
 		panel.setLayout(null);
 
-		// Image image = Image1.getImage();
-
-		// set the scale of the Image using the getScaledInstance() method
-		Image scaledImage = Image1.getScaledInstance(120, 180, Image.SCALE_SMOOTH);
-		ImageIcon scaledImageIcon = new ImageIcon(scaledImage);
-		Label1.setIcon(scaledImageIcon);
+//		 Image image = Image1.getImage();
+//
+//		// set the scale of the Image using the getScaledInstance() method
+//		Image scaledImage = Image1.getScaledInstance(120, 180, Image.SCALE_SMOOTH);
+//		ImageIcon scaledImageIcon = new ImageIcon(scaledImage);
+//		Label1.setIcon(scaledImageIcon);
 
 		JLabel lblNewLabel_3 = new JLabel("BookTracker\r\n");
 		lblNewLabel_3.setFont(new Font("SansSerif", Font.BOLD, 32));
@@ -320,26 +391,35 @@ public class GuiAddBook extends JFrame {
 		textField_3.setBounds(352, 420, 876, 192);
 		contentPane.add(textField_3);
 
+		directory = new JTextField();
+		directory.setBounds(740, 652, 130, 42);
+		contentPane.add(directory);
+
 		JButton addImage = new JButton("add Image");
-		addImage.setFont(new Font("SansSerif", Font.PLAIN, 24));
-		addImage.setBounds(616, 652, 304, 42);
+		addImage.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		addImage.setBounds(616, 652, 130, 42);
 		contentPane.add(addImage);
 
 		addImage.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				imageload();
+				try {
+					imageload();
+				} catch (FileNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 
 		JButton btnNewButton_1 = new JButton("ADDS");
 		btnNewButton_1.setFont(new Font("SansSerif", Font.PLAIN, 24));
 		btnNewButton_1.setBounds(461, 652, 124, 42);
-		// contentPane.add(btnNewButton_1);
+		contentPane.add(btnNewButton_1);
 
 		JButton btnNewButton_1_1 = new JButton("SAVE & ADD ANOTHER");
 		btnNewButton_1_1.setFont(new Font("SansSerif", Font.PLAIN, 24));
 		btnNewButton_1_1.setBounds(616, 652, 304, 42);
-		contentPane.add(btnNewButton_1_1);
+		// contentPane.add(btnNewButton_1_1);
 
 		JButton btnNewButton_1_2 = new JButton("RESET");
 		btnNewButton_1_2.setFont(new Font("SansSerif", Font.PLAIN, 24));
@@ -349,10 +429,33 @@ public class GuiAddBook extends JFrame {
 
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+
+//				byte[] imageBytes = null;
+//				try {
+//					// Read the image file
+//					File imageFile = new File(paths);
+//					FileInputStream fis = new FileInputStream(imageFile);
+//
+//					// Create a byte array to store the image data
+//					imageBytes = new byte[(int) imageFile.length()];
+//
+//					// Read the image data into the byte array
+//					fis.read(imageBytes);
+//
+//					// Close the FileInputStream
+//					fis.close();
+//
+//					System.out.println("Image converted to byte array successfully.");
+//				} catch (IOException ex) {
+//					ex.printStackTrace();
+//				}
+
+				byte[] imageData = convertImageToByteArray(image);
+
 				WebTarget target = getWebTarget();
 				Book book = new Book(textField.getText(), textField_1.getText(), textField_2.getText(),
 						String.valueOf(comboBox.getSelectedItem()), textField_3.getText(),
-						String.valueOf(comboBox_1.getSelectedItem()));
+						String.valueOf(comboBox_1.getSelectedItem()), imageData);
 				Response response = target.request().post(Entity.entity(book, MediaType.APPLICATION_JSON),
 						Response.class);
 				JOptionPane.showMessageDialog(null, "Book Added!");
@@ -377,4 +480,5 @@ public class GuiAddBook extends JFrame {
 			}
 		});
 	}
+
 }

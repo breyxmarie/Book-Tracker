@@ -3,6 +3,7 @@ package net.codejava.ws;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Blob;
@@ -598,16 +599,111 @@ public class DbConnect {
 		// return books;
 	}
 
+	public static String bytesToHex(byte[] bytes) {
+		StringBuilder sb = new StringBuilder();
+		for (byte b : bytes) {
+			sb.append(String.format("%02X", b));
+		}
+		return sb.toString();
+	}
+
 	// public void addRecord(String Title,String Author, String PubYear,String
 	// Genre,String Plot, String Status) {
-	public void addRecord(Book book) {
+
+	private static byte[] loadImageData() {
+		// Load the byte[] data from your source
+		// For example, reading from a file or database
+		// Here, we are using a dummy data
+		return new byte[] { /* your byte data here */ };
+	}
+
+	private static Image convertByteArrayToImage(byte[] imageData) {
+		try (ByteArrayInputStream inputStream = new ByteArrayInputStream(imageData)) {
+			return ImageIO.read(inputStream);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	private static Image loadImage(String path) {
+		Image image = null;
+		try {
+			image = ImageIO.read(DbConnect.class.getResource(path));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return image;
+	}
+
+	private static Blob convertImageToBlob(Image image, String format) {
+		BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null),
+				BufferedImage.TYPE_INT_ARGB);
+		bufferedImage.getGraphics().drawImage(image, 0, 0, null);
+
+		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+			ImageIO.write(bufferedImage, format, baos);
+			byte[] imageData = baos.toByteArray();
+
+			// Create a BLOB object from the byte array
+			return new javax.sql.rowset.serial.SerialBlob(imageData);
+
+		} catch (IOException | SQLException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	public void addRecord(Book book) throws SQLException {
+//		String hexString = bytesToHex(book.getCover());
+//		Blob blob = con.createBlob();
+//		blob.setBytes(1, book.getCover());
+//		try {
+//			Blob hexString = new SerialBlob(book.getCover());
+//			// Now you can use the 'blob' object as needed
+//			// For example, you can pass it to a JDBC PreparedStatement
+//
+//			// To retrieve the byte[] from the Blob object, you can use the following code:
+//			byte[] retrievedBytes = hexString.getBytes(1, (int) hexString.length());
+//			// 'retrievedBytes' will contain the original byte array
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
+
+//		 ByteArrayInputStream inputStream = new ByteArrayInputStream(book.getCover());
+//         st.setBlob(inputStream);
+
+		byte[] imageData = loadImageData();
+
+		// Convert byte[] to Image
+		Image image = convertByteArrayToImage(book.getCover());
+		// Blob blob = convertImageToBlob(image, "png");
+
 		String qrys = "SELECT * FROM book_tracker.book_records WHERE book_id = " + book.getTitle() + "";
 		try {
-			qry = "INSERT INTO book_tracker.book_records  (`title`, `author`, `pub_year`, `genre`, `plot`, `status`) "
-					+ "VALUES ('" + book.getTitle() + "' ,'" + book.getAuthor() + "' ,'" + book.getPubYear() + "' ,'"
-					+ book.getGenre() + "' ,'" + book.getPlot() + "' ,'" + book.getStatus() + "');";
+			String qry = "INSERT INTO book_tracker.book_records (`title`, `author`, `pub_year`, `genre`, `plot`, `status`, `image`) "
+					+ "VALUES (?, ?, ?, ?, ?, ?, ?)";
 			st = con.prepareStatement(qry);
-			st.executeUpdate(qry);
+
+			// Set the values using the appropriate methods
+			st.setString(1, book.getTitle());
+			st.setString(2, book.getAuthor());
+			st.setString(3, book.getPubYear());
+			st.setString(4, book.getGenre());
+			st.setString(5, book.getPlot());
+			st.setString(6, book.getStatus());
+
+			// Create a Blob object from the byte array
+			Blob blob = con.createBlob();
+			blob.setBytes(1, book.getCover());
+
+			// Set the Blob parameter
+			st.setBlob(7, blob);
+
+			// Execute the prepared statement
+			st.executeUpdate();
 			System.out.println("Data Insert Success");
 
 		} catch (SQLException e) {

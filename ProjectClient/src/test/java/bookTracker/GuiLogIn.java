@@ -44,7 +44,7 @@ public class GuiLogIn extends JFrame implements ActionListener {
 	public GuiLogIn() {
 
 		// Set window title
-		setTitle("Login Form");
+		setTitle("Login Forms");
 
 		// Initialize components
 		userLabel = new JLabel("Username:");

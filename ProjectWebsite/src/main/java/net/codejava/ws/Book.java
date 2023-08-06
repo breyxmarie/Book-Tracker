@@ -16,7 +16,7 @@ public class Book {
 	private String Genre;
 	private String Plot;
 	private String Status;
-	private byte[] Cover;
+	private byte[] Cover; // st = con.prepareStatement(qry);
 	private String ratings;
 	private String comment;
 	private String StartDate;
@@ -31,6 +31,17 @@ public class Book {
 		this.Genre = Genre;
 		this.Plot = Plot;
 		this.Status = Status;
+	}
+
+	public Book(String Title, String Author, String PubYear, String Genre, String Plot, String Status, byte[] Cover) {
+
+		this.Title = Title;
+		this.Author = Author;
+		this.PubYear = PubYear;
+		this.Genre = Genre;
+		this.Plot = Plot;
+		this.Status = Status;
+		this.Cover = Cover;
 	}
 
 	public Book(int id, String Title, String Author, String PubYear, String Genre, String Plot, String Status) {
